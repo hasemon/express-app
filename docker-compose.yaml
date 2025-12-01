@@ -1,8 +1,19 @@
 services:
+  express-app:
+    image: ${DOCKERHUB_USERNAME}/express-app:latest
+    container_name: express-app
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
   watchtower:
     image: containrrr/watchtower
+    container_name: watchtower
     environment:
-      -  WATCHTOWER_POLL_INTERVAL=60 <em># Poll every 60 seconds</em>
+      - WATCHTOWER_POLL_INTERVAL=60  # Poll every 60 seconds
+      - WATCHTOWER_CLEANUP=true      # Remove old images after updating
+      - WATCHTOWER_INCLUDE_RESTARTING=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    container_name: watchtower
+    command: express-app  # Monitor only the express-app container
+    restart: unless-stopped
